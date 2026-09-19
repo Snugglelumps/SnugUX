@@ -1,0 +1,16 @@
+## Interface: 016001
+## Title: SnugUX
+## Notes: UI anchors and quality of life tweaks
+## Author: Snugglelumps
+## Version: 0.1.0
+## IconTexture: Interface\AddOns\SnugUX\media\icon
+## Category-enUS: User Interface
+## X-License: MIT
+## SavedVariables: SnugUXDB
+
+core.lua
+
+modules/qol.lua
+modules/anchors.lua
+modules/blizzframes.lua
+modules/bars.lua
