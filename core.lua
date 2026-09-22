@@ -326,6 +326,56 @@ registerFrame:SetScript("OnEvent", function(_, event, arg1)
 end)
 
 
+-- local function _checkLayout()
+--     local layoutInfo = C_EditMode.GetLayouts()
+
+--     local layouts = EditModePresetLayoutManager:GetCopyOfPresetLayouts()
+--     tAppendAll(layouts, layoutInfo.layouts)
+--     layoutInfo.layouts = layouts
+
+--     local currentLayout = layoutInfo.layouts[layoutInfo.activeLayout]
+--     if currentLayout.layoutType == Enum.EditModeLayoutType.Preset then
+--         S.core.print("Your layout is a preset. Make a custom layout or use an included layout in /sux")
+--         return
+--     end
+-- end
+
+
+-- local function checkLayout()
+--     C_Timer.After(1, _checkLayout)
+-- end
+-- S.register.playerLogin(checkLayout)
+
+StaticPopupDialogs["SNUGUX_DEFAULT_LAYOUT_WARNING"] = {
+    text = "Anchors are enabled, but you're on a default layout. Switch to a custom layout in /sux for them to work.",
+    button1 = "Okay",
+    timeout = 0,
+    whileDead = true,
+    hideOnEscape = true,
+}
+
+local function layoutIsCustom()
+    local layoutInfo = C_EditMode.GetLayouts()
+
+    local layouts = EditModePresetLayoutManager:GetCopyOfPresetLayouts()
+    tAppendAll(layouts, layoutInfo.layouts)
+    layoutInfo.layouts = layouts
+
+    local currentLayout = layoutInfo.layouts[layoutInfo.activeLayout]
+    return currentLayout.layoutType ~= Enum.EditModeLayoutType.Preset
+end
+
+local function warnIfDefaultLayout()
+    if S.db.anchors.enabled and not layoutIsCustom() then
+        StaticPopup_Show("SNUGUX_DEFAULT_LAYOUT_WARNING")
+    end
+end
+local function hookWarnIfDefaultLayout()
+    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", warnIfDefaultLayout)
+end
+S.register.playerLogin(warnIfDefaultLayout)
+S.register.playerLogin(hookWarnIfDefaultLayout)
+
 --[[--------------------------------------------------------------------------
     Opening the window
 ----------------------------------------------------------------------------]]

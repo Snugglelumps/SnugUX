@@ -131,6 +131,19 @@ local function getAnchor(label)
     end
 end
 
+-- we probably need to guard updateAnchors and updateAnchorAppearance someday.
+-- im not toally sure how I want SnugUX to respond to being on default UI.
+local function layoutIsCustom()
+    local layoutInfo = C_EditMode.GetLayouts()
+
+    local layouts = EditModePresetLayoutManager:GetCopyOfPresetLayouts()
+    tAppendAll(layouts, layoutInfo.layouts)
+    layoutInfo.layouts = layouts
+
+    local currentLayout = layoutInfo.layouts[layoutInfo.activeLayout]
+    return currentLayout.layoutType ~= Enum.EditModeLayoutType.Preset
+end
+
 
 module.state = {}
 
@@ -145,24 +158,25 @@ local function updateAnchors()
     local left  = module.state.left
     local right = module.state.right
 
-    left:SetSize(S.db.anchors.width, S.db.anchors.height)
-
-    right:SetSize(S.db.anchors.width, S.db.anchors.height)
-
-    if S.db.anchors.enabled then
-        left:Show()
-        right:Show()
-    else
+    if not S.db.anchors.enabled or not layoutIsCustom() then
         left:Hide()
         right:Hide()
+        return
     end
+
+    left:SetSize(S.db.anchors.width, S.db.anchors.height)
+    right:SetSize(S.db.anchors.width, S.db.anchors.height)
+    left:Show()
+    right:Show()
 
     S.blizzframes.placeChat(getAnchor("Chat"))
     S.blizzframes.placeDamageMeter(getAnchor("Damage Meter"))
 end
-S.register.playerLogin(updateAnchors)
+
 
 local function updateAnchorAppearance()
+    if not S.db.anchors.enabled or not layoutIsCustom() then return end
+
     local left  = module.state.left
     local right = module.state.right
 
@@ -227,8 +241,16 @@ rightContent:onChange(
     updateAnchors,
     validateRightControl
 )
+enabled:onChange(
+    updateAnchors,
+    updateAnchorAppearance
+)
 
 S.register.playerLogin(function()
     updateAnchors()
     updateAnchorAppearance()
+
+    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", updateAnchors)
+    hooksecurefunc(EditModeManagerFrame, "ExitEditMode", updateAnchorAppearance)
 end)
+

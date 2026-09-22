@@ -30,6 +30,11 @@ local chatButtonFrame = module:checkbox("chatButtonFrame", {
     default = true,
 })
 
+local chatTabHighlight = module:checkbox("chatTabHighlight", {
+    label   = "Disable Chat Tab Highlights",
+    default = true,
+})
+
 module:section("Damage Meter")
 local damageMeterHeader = module:checkbox("damageMeterHeader", {
     label   = "Disable Damage Meter Header",
@@ -80,12 +85,6 @@ local function saveLayout(frame, anchor, offsetX, offsetY)
     tAppendAll(layouts, layoutInfo.layouts)
     layoutInfo.layouts = layouts
 
-    local currentLayout = layoutInfo.layouts[layoutInfo.activeLayout]
-    if currentLayout.layoutType == Enum.EditModeLayoutType.Preset then
-        S.core.print("Your layout is a preset. Make a custom layout or use an included layout in /sux")
-        return
-    end
-
     local system = findSystem(layoutInfo, frame)
     if not system then return end
 
@@ -111,7 +110,7 @@ local function inject(frame, anchor, offsetX, offsetY)
 end
 
 --==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
---==#  Work
+--==#  WORK: Chat Frames
 --==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
 
 function S.blizzframes.placeChat(anchor)
@@ -120,7 +119,7 @@ function S.blizzframes.placeChat(anchor)
     local frame = ChatFrame1
 
     frame:ClearAllPoints()
-    frame:SetPoint("BOTTOMLEFT", anchor, "BOTTOMLEFT", 5, 6.5)
+    frame:SetPoint("BOTTOMLEFT", anchor, "BOTTOMLEFT", 7, 6.5)
     frame:SetSize(
         S.db.anchors.width - widthInset - extraWidthInset - 4,
         S.db.anchors.height - heightInset - 2
@@ -220,6 +219,27 @@ local function _socialButton()
 end
 
 
+local function _chatTabHighlight()
+    for i = 1, 3 do
+        if S.db.blizzframes.chatTabHighlight then
+            _G["ChatFrame" .. i .. "Tab"].Middle:Hide()
+            _G["ChatFrame" .. i .. "Tab"].Right:Hide()
+            _G["ChatFrame" .. i .. "Tab"].Left:Hide()
+        else
+            _G["ChatFrame" .. i .. "Tab"].Middle:Show()
+            _G["ChatFrame" .. i .. "Tab"].Right:Show()
+            _G["ChatFrame" .. i .. "Tab"].Left:Show()
+        end
+    end
+end
+S.register.playerLogin(_chatTabHighlight)
+
+
+--==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
+--==#  WORK: Damage Meter
+--==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
+
+
 function S.blizzframes.placeDamageMeter(anchor)
     if not checkReadiness(anchor) then return end
 
@@ -312,7 +332,7 @@ local function hookHides()
 end
 
 --==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
---==#  Combat Menu Bars
+--==#  WORK: Combat Menu Bars
 --==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
 
 local combatMenuBars = { MultiBar5, MultiBar6, MultiBar7 }
@@ -390,3 +410,6 @@ S.register.playerLogin(function()
     hooksecurefunc(EditModeManagerFrame, "EnterEditMode", showCombatMenuBars)
     hooksecurefunc(EditModeManagerFrame, "ExitEditMode", hideCombatMenuBars)
 end)
+
+
+chatTabHighlight:onChange(_chatTabHighlight)

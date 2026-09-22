@@ -258,7 +258,6 @@ end
 --==###====---- - - -  -  -  -   -    -     -    -   -  -  -  - - - ----====###
 
 height:onChange(applyHeight)
-
 snugXPBar:onChange(updateXP)
 snugRepBar:onChange(updateRep)
 blizzBars:onChange(_blizzBars)
